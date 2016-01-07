@@ -64,7 +64,7 @@ behaviors.sections = function() {
 	$('article section').each(function() {
 		var section = $(this);
 		var anchor = $('a', section);
-		// Move content until next section inside section
+		// Move content until next section insidejs section
 		section.append(section.nextUntil('section'));
 		var title = anchor.attr('title') || $('h1,h2', section).first().text();
 		var id = section.attr('id');
