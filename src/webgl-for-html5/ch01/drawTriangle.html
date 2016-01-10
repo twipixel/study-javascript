@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>A Triangle</title>
+    <style>
+        body {
+            background-color: grey;
+        }
+
+        canvas {
+            background-color: white;
+        }
+    </style>
+    <script id="shader-vs" type="x-shader/x-vertex">
+			attribute vec3 aVertexPosition;
+			void main(void) {
+				// 정점 셰이더는 우리가 넘겨줄 (x,y,z) 정점을 받아서 최종 위치를 (x,y,z,1.0)으로 설정
+				gl_Position = vec4 (aVertexPosition, 1.0);
+
+				// 정점 포인트 사이즈 설정
+				gl_PointSize = 5.0;
+			}
+    </script>
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+			void main(void) {
+				// 플래그먼트 셰이더는 자신이 넘겨받는 각 프래그먼트를 흰색으로 설정. 4번째 성분은 알파 값
+				gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);
+			}
+    </script>
+    <script>
+        var gl = null, // 웹지엘
+                canvas = null, // 캔버스
+                glProgram = null, // 셰이딩 언어 프로그램
+                fragmentShader = null, // 프래그먼트 셰이더
+                vertexShader = null; // 정점 셰이더
+
+        var vertexPositionAttribute = null, // 정점 셰이더로 넘겨줄 정점 위치 어트리뷰트
+                trianglesVerticeBuffer = null; // 삼각형 정점을 저장할 정점 버퍼 객체를 참조 변
+
+        function initWebGL() {
+            canvas = document.getElementById("my-canvas");
+            try {
+                gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            } catch (e) {
+
+            }
+            console.log(gl);
+            if (gl) {
+                setupWebGL();
+                initShaders();
+                setupBuffer();
+                drawScene();
+            }
+        }
+
+        function setupWebGL() {
+            //클리어 색상을 녹색으로 설정
+            gl.clearColor(0.1, 0.5, 0.1, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+
+        function initShaders() {
+            // 셰이더 소스를 가져옴
+            var fs_source = document.getElementById("shader-fs").innerHTML,
+                    vs_source = document.getElementById("shader-vs").innerHTML;
+
+            // 셰이더를 컴파일
+            vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+            fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+
+            // 프로그램 생성
+            glProgram = gl.createProgram();
+
+            // 프로그램에 셰이더를 첨부하고 연결
+            gl.attachShader(glProgram, vertexShader);
+            gl.attachShader(glProgram, fragmentShader);
+            gl.linkProgram(glProgram);
+
+            if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+                alert("Unable to initialize the shader program.");
+            }
+
+            gl.useProgram(glProgram);
+        }
+
+        function makeShader(src, type) {
+            // 정점 셰이더 컴파일
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, src);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        }
+
+        function setupBuffer() {
+            var triangleVertices = [
+                // 왼쪽 삼각형
+                -0.5, 0.5, 0.0,
+                0.0, 0.0, 0.0,
+                -0.5, -0.5, 0.0,
+
+                // 오른쪽 삼각형
+                0.5, 0.5, 0.0,
+                0.0, 0.0, 0.0,
+                0.5, -0.5, 0.0
+            ];
+
+            trianglesVerticeBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+        }
+
+        function drawScene() {
+            vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(vertexPositionAttribute);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
+
+            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+//            gl.drawArrays(gl.LINES, 0, 6);
+//            gl.drawArrays(gl.LINES, 0, 2);
+//            gl.drawArrays(gl.LINES, 2, 2);
+//            gl.drawArrays(gl.LINES, 4, 2);
+            gl.drawArrays(gl.POINTS, 0, 6);
+        }
+
+
+        /**
+         * gl.vertexAttribPointer 인자 설명
+         * http://hanmomhanda.github.io/2015/10/17/Hello-Triangle-in-WebGL/
+         * stride와 offset은 http://stackoverflow.com/a/16888156 참고
+         *
+         * @param index aVertexPosition에 접근할 수 있는 위치값
+         * @param size 버텍스 하나의 위치를 나타내는 위치 정보의 개수. x, y, z라서 3
+         * @param type vertexBuffer에 담겨있는 데이터 타입(gl.FLOAT | gl.FIXED)
+         * @param float float이 아닌 데이터를 float로 변환할 지 여부
+         * @param stride 버텍스 하나를 구성하는 byte 수(0 ~ 255의 값)
+         * @param offset 추출하고자 하는 정보의 시작 위치(byte 단위)
+         */
+        function vertexAttribPointer(index, size, type, float, stride, offset) {
+
+        }
+
+        initWebGL();
+    </script>
+</head>
+<body onload="initWebGL()">
+<canvas id="my-canvas" width="400" height="300">
+    Your broser does not support the HTML5 canvas element.
+</canvas>
+</body>
+
+</html>
