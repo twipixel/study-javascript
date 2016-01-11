@@ -1,0 +1,169 @@
+<body>
+<div id='propertyContainer'>
+    <label for='objWidth'>너비 : </label><input id='objWidth' class='slider' type='range' min='0' max='800' value='100'><span id='pxWidth'>100</span>
+    <label for='objHeight'>높이 : </label><input id='objHeight' class='slider' type='range' min='0' max='400' value='100'><span id='pxHeight'>100</span>
+    <label for='objDepth'>깊이 : </label><input id='objDepth' class='slider' type='range' min='0' max='200' value='0'><span id='pxDepth'>0</span>
+    <br/>
+    <label for='translateX'>X축 이동 : </label><input id='translateX' class='slider' type='range' min='-400' max='400' value='0'><span id='pxTX'>0</span>
+    <label for='translateY'>Y축 이동 : </label><input id='translateY' class='slider' type='range' min='-200' max='200' value='0'><span id='pxTY'>0</span>
+    <label for='translateZ'>Z축 이동 : </label><input id='translateZ' class='slider' type='range' min='-100' max='100' value='0'><span id='pxTZ'>0</span>
+    <br/>
+    <label for='rotateX'>X축 회전각 : </label><input id='rotateX' class='slider' type='range' min='-360' max='360' value='0'><span id='pxRX'>0</span>
+    <label for='rotateY'>Y축 회전각 : </label><input id='rotateY' class='slider' type='range' min='-360' max='360' value='0'><span id='pxRY'>0</span>
+    <label for='rotateZ'>Z축 회전각 : </label><input id='rotateZ' class='slider' type='range' min='-360' max='360' value='0'><span id='pxRZ'>0</span>
+    <br/>
+    <label for='viewportWidth'>Viewport 너비 : </label><input id='viewportWidth' type='text' placeholder='viewport 너비를 픽셀 단위로 입력' value='800'>
+    <label for='viewportHeight'>Viewport 높이 : </label><input id='viewportHeight' type='text' placeholder='viewport 높이를 픽셀 단위 입력' value='400'>
+    <button id='btnRedraw'>다시 그리기</button>
+</div>
+<br/>
+<canvas id="glCanvas" width="1000" height="500"></canvas>
+<script>
+
+    var gl, keys='webgl,experimental-webgl,webkit-3d,moz-webgl'.split(','), i=keys.length
+    var cvs=document.getElementById('glCanvas')
+    while(i--) if(gl=cvs.getContext(keys[i])) break
+    if(gl) console.log('webgl 초기화 성공!')
+    else console.log('webgl 초기화 실패!')
+    function setBuffer(){
+        // Vertex Buffer
+        var rectData=[
+            -0.5, -0.5, 0.5,
+            0.5, -0.5, 0.5,
+            -0.5, 0.5, 0.5,
+            0.5, 0.5, 0.5
+        ]
+        var buffer=gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(rectData), gl.STATIC_DRAW)
+        buffer.itemSize=3
+        buffer.numItem=4
+        return buffer
+    }
+    function setProgram(){
+        var vertexShader=gl.createShader(gl.VERTEX_SHADER)
+        var fragmentShader=gl.createShader(gl.FRAGMENT_SHADER)
+        var program=gl.createProgram()
+        // Vertex Shader & Fragment Shader
+        gl.shaderSource(vertexShader, vertexShaderStr)
+        gl.compileShader(vertexShader)
+        gl.shaderSource(fragmentShader, fragmentShaderStr)
+        gl.compileShader(fragmentShader)
+        //Program
+        gl.attachShader(program, vertexShader)
+        gl.attachShader(program, fragmentShader)
+        gl.linkProgram(program)
+        program.aVertexPosition=gl.getAttribLocation(program, "aVertexPosition");
+        program.uRotation=gl.getUniformLocation(program, 'uRotation')
+        program.uColor=gl.getUniformLocation(program, 'uColor')
+        program.uPixelMatrix=gl.getUniformLocation(program, "uPixelMatrix")
+        program.uScale=gl.getUniformLocation(program, "uScale")
+        // 007강 uPosition 주소값 알아내기 Start
+        program.uPosition=gl.getUniformLocation(program, "uPosition")
+        // 007강 uPosition 주소값 알아내기 End
+        return program
+    }
+    var rectBuffer=setBuffer()
+    var vertexShaderStr=""+
+            "attribute vec3 aVertexPosition;"+
+            "uniform mat4 uPixelMatrix;"+
+        // 007강 uPosition 선언 Start
+            "uniform vec3 uPosition;"+
+        // 007강 uPosition 선언 End
+            "uniform vec3 uScale;"+
+            "uniform vec3 uRotation;"+
+            "uniform vec3 uColor;"+
+            "varying vec3 vColor;"+
+        // 007강 positionMTX 선언 Start
+            'mat4 positionMTX(vec3 t)' +
+            '{' +
+            '   return mat4( 1,0,0,0, 0,1,0,0, 0,0,1,0, t[0],t[1],t[2],1);' +
+            '}' +
+        // 007강 positionMTX 선언 End
+            'mat4 scaleMTX(vec3 t)'+
+            '{'+
+            '   return mat4( t[0],0,0,0, 0,t[1],0,0, 0,0,t[2],0, 0,0,0,1);'+
+            '}'+
+            'mat4 rotationMTX(vec3 t)'+
+            '{'+
+            '   float s = sin(t[0]);float c = cos(t[0]);'+
+            '   mat4 m1 = mat4( 1,0,0,0, 0,c,-s,0, 0,s,c,0, 0,0,0,1);s = sin(t[1]);c = cos(t[1]);'+
+            '   mat4 m2 = mat4(c,0,s,0, 0,1,0,0, -s,0,c,0, 0,0,0,1);s = sin(t[2]);c = cos(t[2]);'+
+            '   mat4 m3 = mat4(c,-s,0,0, s,c,0,0, 0,0,1,0, 0,0,0,1);'+
+            '   return m3*m2*m1;'+
+            '}'+
+            "void main(void) {"+
+        // 007강 gl_Position 업데이트 Start
+            " gl_Position =uPixelMatrix*positionMTX(uPosition)*rotationMTX(uRotation)* scaleMTX(uScale)*vec4(aVertexPosition, 1.0);" +
+        // 007강 gl_Position 업데이트 End
+            " vColor = uColor;"+
+            "}"
+    var fragmentShaderStr=""+
+            "precision mediump float;"+
+            "varying vec3 vColor;"+
+            "void main(void) {"+
+            " gl_FragColor = vec4(vColor, 1.0);"+
+            "}"
+    var firstProgram=setProgram(vertexShaderStr, fragmentShaderStr)
+
+
+    function render(){
+        var viewportWidth, viewportHright,
+            depth = parseInt(document.getElementById('objDepth').max) - parseInt(document.getElementById('objDepth').min);
+        cvs.width = document.getElementById('viewportWidth').value,
+        cvs.height = document.getElementById('viewportHeight').value;
+        if(cvs)  viewportWidth=cvs.width, viewportHeight=cvs.height
+        gl.viewport(0, 0, parseInt(cvs.width), +parseInt(cvs.height));
+        var pixelMatrix=[
+            2/viewportWidth, 0, 0, 0,
+            0, 2/viewportHeight, 0, 0,
+            0, 0, 2/depth, 0,
+            0, 0, 0, 1
+        ]
+
+        var _RADIAN = Math.PI/180,
+            rotations=[
+                parseFloat(document.getElementById('rotateX').value)*_RADIAN,
+                parseFloat(document.getElementById('rotateY').value)*_RADIAN,
+                parseFloat(document.getElementById('rotateZ').value)*_RADIAN
+            ],
+            scales=[
+                parseFloat(document.getElementById('objWidth').value),
+                parseFloat(document.getElementById('objHeight').value),
+                parseFloat(document.getElementById('objDepth').value)
+            ],
+            position = [
+                parseFloat(document.getElementById('translateX').value),
+                parseFloat(document.getElementById('translateY').value),
+                parseFloat(document.getElementById('translateZ').value)
+            ];
+
+
+        gl.clearColor(0, 0, 0, 1)
+        gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT)
+        gl.useProgram(firstProgram)
+        gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
+        gl.enableVertexAttribArray(firstProgram.aVertexPosition);
+        gl.vertexAttribPointer(firstProgram.aVertexPosition, rectBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.uniform3fv(firstProgram.uRotation, rotations)
+        gl.uniformMatrix4fv(firstProgram.uPixelMatrix, false, pixelMatrix)
+        gl.uniform3fv(firstProgram.uScale, scales)
+        gl.uniform3fv(firstProgram.uPosition, position)
+        gl.uniform3fv(firstProgram.uColor, [0.2, 0.4, 0.6])
+        // gl.drawArrays(gl.TRIANGLE_STRIP, 0, rectBuffer.numItem);
+        gl.drawArrays(gl.LINE_LOOP, 0, rectBuffer.numItem);
+    }
+    // setInterval(render, 16)
+    render();
+
+    Array.prototype.slice.call(document.querySelectorAll('.slider'))
+            .forEach( function( element ) {
+                element.addEventListener('input', function() {
+                    element.nextSibling.innerText = element.value,
+                    render();
+                });
+            });
+</script>
+
+
+</body>

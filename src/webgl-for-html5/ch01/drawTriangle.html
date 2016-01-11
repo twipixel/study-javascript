@@ -1,32 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>A Triangle</title>
     <style>
-        body {
-            background-color: grey;
-        }
-
-        canvas {
-            background-color: white;
-        }
+        body {background-color: grey;}
+        canvas {background-color: white;}
     </style>
+    <script src="../../../lib/rAF.js"></script>
+    <script src="../../../lib/gl-matrix-min.js"></script>
     <script id="shader-vs" type="x-shader/x-vertex">
 			attribute vec3 aVertexPosition;
+			attribute vec3 aVertexColor;
+
+			uniform mat4 uMVMatrix;
+			uniform mat4 uPMatrix;
+
+			varying highp vec4 vColor;
+
 			void main(void) {
-				// 정점 셰이더는 우리가 넘겨줄 (x,y,z) 정점을 받아서 최종 위치를 (x,y,z,1.0)으로 설정
-				gl_Position = vec4 (aVertexPosition, 1.0);
+				//정점 셰이더는 우리가 넘겨줄 (x,y,z) 정점을 받아서 최종 위치를 (x,y,z,1.0)으로 설정
+				//gl_Position = vec4 (aVertexPosition, 1.0);
+				gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+
+                vColor = vec4(aVertexColor, 1.0);
 
 				// 정점 포인트 사이즈 설정
-				gl_PointSize = 5.0;
+				gl_PointSize = 1.0;
 			}
     </script>
 
     <script id="shader-fs" type="x-shader/x-fragment">
+            varying highp vec4 vColor;
+
 			void main(void) {
 				// 플래그먼트 셰이더는 자신이 넘겨받는 각 프래그먼트를 흰색으로 설정. 4번째 성분은 알파 값
-				gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);
+				//gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0);
+				gl_FragColor = vColor;
 			}
     </script>
     <script>
@@ -37,21 +47,34 @@
                 vertexShader = null; // 정점 셰이더
 
         var vertexPositionAttribute = null, // 정점 셰이더로 넘겨줄 정점 위치 어트리뷰트
-                trianglesVerticeBuffer = null; // 삼각형 정점을 저장할 정점 버퍼 객체를 참조 변
+                trianglesVerticeBuffer = null, // 삼각형 정점을 저장할 정점 버퍼 객체를 참조 변수
+                vertexColorAttribute = null,
+                trianglesColorBuffer = null;
+
+        var angle = 0.0;
+
+        var mvMatrix = mat4.create(),
+                pMatrix = mat4.create();
 
         function initWebGL() {
             canvas = document.getElementById("my-canvas");
+
             try {
                 gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
             } catch (e) {
-
             }
-            console.log(gl);
+
             if (gl) {
-                setupWebGL();
                 initShaders();
                 setupBuffer();
-                drawScene();
+                getMatrixUniforms();
+                (function animLoop() {
+                    setupWebGL();
+                    setupDynamicBuffers();
+                    setMatrixuniforms();
+                    drawScene();
+                    requestAnimationFrame(animLoop, canvas);
+                })();
             }
         }
 
@@ -59,6 +82,23 @@
             //클리어 색상을 녹색으로 설정
             gl.clearColor(0.1, 0.5, 0.1, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            //gl.viewport(0, canvas.height / 2.0, canvas.width / 2.0, canvas.height / 2.0);
+
+            // gl-matirx 라이브러리 헬퍼 함수
+            // perspective(시야, 종횡비, 전방 경계, 후방 경계);
+            mat4.perspective(45, canvas.width / canvas.height, 0.1, 100.0, pMatrix);
+            mat4.identity(mvMatrix);
+
+            // Old API
+            // http://stackoverflow.com/questions/14784427/webgl-using-gl-matrix-library-mat4-translate-not-running
+            mat4.translate(mvMatrix, [0, 0, -2.0]);
+
+            // New API
+            /*var translation = vec3.create();
+             vec3.set(translation, 0, 0, -2.0);
+             mat4.translate(mvMatrix, mvMatrix, translation);*/
         }
 
         function initShaders() {
@@ -98,39 +138,77 @@
         }
 
         function setupBuffer() {
+            var triangleVerticeColors = [
+                //빨간색 왼쪽 삼각형
+                1.0, 0.0, 0.0,
+                1.0, 1.0, 1.0,
+                1., 0.0, 0.0,
+
+                // 파란색 오른쪽 삼각형
+                0.0, 0.0, 1.0,
+                1.0, 1.0, 1.0,
+                0.0, 0.0, 1.0
+            ];
+
+            trianglesColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVerticeColors), gl.STATIC_DRAW);
+        }
+
+        function setupDynamicBuffers() {
+            //변환 범위를 -0.5 부터 0.5로 제한
+            var x_translation = Math.sin(angle) / 2.0;
+
             var triangleVertices = [
                 // 왼쪽 삼각형
-                -0.5, 0.5, 0.0,
-                0.0, 0.0, 0.0,
-                -0.5, -0.5, 0.0,
+                -0.5 + x_translation, 0.5, -0.5,
+                0.0 + x_translation, 0.0, -0.5,
+                -0.5 + x_translation, -0.5, -0.5,
 
                 // 오른쪽 삼각형
-                0.5, 0.5, 0.0,
-                0.0, 0.0, 0.0,
-                0.5, -0.5, 0.0
+                0.5 + x_translation, 0.5, 0.5,
+                0.0 + x_translation, 0.0, 0.5,
+                0.5 + x_translation, -0.5, 0.5,
             ];
+
+            angle += 0.01;
 
             trianglesVerticeBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.DYNAMIC_DRAW);
         }
 
         function drawScene() {
+            // 정점 위치 그릴 준비
             vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
             gl.enableVertexAttribArray(vertexPositionAttribute);
-
             gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
-
             gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+            // 쉐이더 색상 준비
+            vertexColorAttribute = gl.getAttribLocation(glProgram, "aVertexColor");
+            gl.enableVertexAttribArray(vertexColorAttribute);
+            gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
+            gl.vertexAttribPointer(vertexColorAttribute, 3, gl.FLOAT, false, 0, 0);
 
             gl.drawArrays(gl.TRIANGLES, 0, 6);
 //            gl.drawArrays(gl.LINES, 0, 6);
 //            gl.drawArrays(gl.LINES, 0, 2);
 //            gl.drawArrays(gl.LINES, 2, 2);
 //            gl.drawArrays(gl.LINES, 4, 2);
-            gl.drawArrays(gl.POINTS, 0, 6);
+//            gl.drawArrays(gl.POINTS, 0, 6);
         }
 
+        function getMatrixUniforms() {
+            // gl.getUniformLocation 은 Uniform에 대한 주소값을 아라내기 위해서 사용합니다.
+            glProgram.pMatrixUniform = gl.getUniformLocation(glProgram, "uPMatrix");
+            glProgram.mvMatrixUniform = gl.getUniformLocation(glProgram, "uMVMatrix");
+        }
+
+        function setMatrixuniforms() {
+            gl.uniformMatrix4fv(glProgram.pMatrixUniform, false, pMatrix);
+            gl.uniformMatrix4fv(glProgram.mvMatrixUniform, false, mvMatrix);
+        }
 
         /**
          * gl.vertexAttribPointer 인자 설명
@@ -148,7 +226,6 @@
 
         }
 
-        initWebGL();
     </script>
 </head>
 <body onload="initWebGL()">
