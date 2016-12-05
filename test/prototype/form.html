@@ -5,16 +5,39 @@
     <title>Prototype Form</title>
 </head>
 
+
+<form id="formOne">
+    <div id="firstDivision">
+        text : <input type="text" id="textSport" value="농구"/><br/><br/>
+
+        select: <br/>
+        <select id="selectRiver" name="nameRiver" size="3">
+            <option id="river0" value="A">한강</option>
+            <option id="river1" value="B" selected>낙동강</option>
+            <option id="river2" value="C">금강</option>
+        </select>
+        <br/><br/>
+        textArea : <br/>
+        <textarea id="textArea" rows="2" cols="20" wrap="soft">아름다운 우리 강산</textarea><br/><br/>
+        text : <input type="text" id="textMountain" value="한라산"/><br/><br/>
+
+        <div id="buttonArea">
+            <input type="button" id="okClick" value="입력완료" />
+        </div>
+
+        <div id="showArea">
+            <div id="show1"></div>
+        </div>
+    </div>
+</form>
+
 <script src="../../libs/jquery.js"></script>
 <script src="../../libs/prototype.js"></script>
-
-
 <script>
 
     ///////////////////////////////////////////////////////////////////
     // inject 테스트
     ///////////////////////////////////////////////////////////////////
-
 
     var re = $R(1, 10);
     var add = function(acc, n) {
@@ -24,14 +47,30 @@
     console.log(result);
 
     var sum = $R(1, 10).inject(0, function(acc, n) { return acc + n; });
-
     console.log(sum);
 
-
     ///////////////////////////////////////////////////////////////////
-    // inject 테스트
+    // getElements 실행
     ///////////////////////////////////////////////////////////////////
 
+    Event.observe(window, 'load', function() {
+        Event.observe('okClick', 'click', Show.okClick);
+    });
+
+
+    var Show = {
+        okClick: function(event) {
+            var resultSelect = Form.getElements('formOne');
+
+            var showInput = '';
+
+            for(var i = 0; i < resultSelect.length; i++) {
+                showInput += resultSelect[i].id + ', ';
+            }
+
+            $('show1').innerHTML = 'ID: ' + showInput;
+        }
+    }
 
 </script>
 
