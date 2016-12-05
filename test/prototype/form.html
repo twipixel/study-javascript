@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Prototype Form</title>
+</head>
+
+<script src="../../libs/jquery.js"></script>
+<script src="../../libs/prototype.js"></script>
+
+
+<script>
+
+    ///////////////////////////////////////////////////////////////////
+    // inject 테스트
+    ///////////////////////////////////////////////////////////////////
+
+
+    var re = $R(1, 10);
+    var add = function(acc, n) {
+        return acc + n;
+    };
+    var result = re.inject(0, add);
+    console.log(result);
+
+    var sum = $R(1, 10).inject(0, function(acc, n) { return acc + n; });
+
+    console.log(sum);
+
+
+    ///////////////////////////////////////////////////////////////////
+    // inject 테스트
+    ///////////////////////////////////////////////////////////////////
+
+
+</script>
+
+</body>
+</html>
