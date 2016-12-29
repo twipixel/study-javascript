@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Number, Object, String 클래스 확장</title>
+</head>
+<body>
+<script src="../../libs/jquery.js"></script>
+<script src="../../libs/prototype.js"></script>
+
+<script>
+
+    ///////////////////////////////////////////////////////////////////
+    // Number (toColorPart, times)
+    ///////////////////////////////////////////////////////////////////
+
+
+    var result;
+    var num = 15;
+    var digits = num.toString(16);
+
+    console.log('digits', digits);
+
+    if(num < 16)
+        result = '0' + digits;
+    else
+        result = digits;
+
+    console.log('result', result);
+
+
+
+    var times = 10;
+
+    var func = function(index) {
+        console.log('func', index);
+    };
+
+    result = $R(0, times, true).each(func);
+
+    console.log('times', times, 'result', result);
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Object ()
+    ///////////////////////////////////////////////////////////////////
+
+
+    var season = ['봄', '여름', '가을', '겨울'];
+    var undefine;
+    var nullValue = null;
+    var booleanValue = true;
+
+    console.log(Object.inspect(season));
+    console.log(Object.inspect(undefine));
+    console.log(Object.inspect(nullValue));
+    console.log(Object.inspect(booleanValue));
+
+
+
+
+</script>
+
+</body>
+</html>
