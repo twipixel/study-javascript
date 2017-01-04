@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>정규식</title>
+</head>
+<body>
+<script src="../../libs/jquery.js"></script>
+<script src="../../libs/prototype.js"></script>
+
+<script>
+
+    ///////////////////////////////////////////////////////////////////
+    // RegExp 생성법
+    ///////////////////////////////////////////////////////////////////
+
+
+    var string = 'prototype framework';
+    var show1 = '패턴 지정 : ' + string.match(/^p/i);
+
+    var regexp1 = /^p/i;
+    var show2 = '문자열 변수 : ' + regexp1.test(string);
+
+    var regexp2 = new RegExp('^p', 'i');
+    var show3 = 'RegExp 패턴 : ' + regexp2;
+    var show4 = 'RegExp 결과 : ' + regexp2.test(string);
+    var show5 = '직접 지정 : ' + /^p/i.exec('prototype framework');
+
+    console.log(show1);
+    console.log(show2);
+    console.log(show3);
+    console.log(show4);
+    console.log(show5);
+    console.log('');
+
+
+    ///////////////////////////////////////////////////////////////////
+    // RegExp i,g,m
+    ///////////////////////////////////////////////////////////////////
+
+
+    var string2 = 'Java, JavaScript, ';
+    var show6 = 'JAVA/i : ' + string2.match(/JAVA/i);
+    var show7 = 'JAVA/ig : ' + string2.match(/JAVA/ig).inspect();
+
+    var string3 = 'Ajax, \nframework\nframework';
+    var show8 = '/^frame/ : ' + string3.match(/^frame/);
+    var show9 = '/^frame/m : ' + string3.match(/^frame/m);
+    var show10 = '/^frame/gm : ' + string3.match(/^frame/gm).inspect();
+
+    console.log(show6);
+    console.log(show7);
+    console.log(show8);
+    console.log(show9);
+    console.log(show10);
+    console.log('');
+
+
+    ///////////////////////////////////////////////////////////////////
+    // RegExp 메서드
+    ///////////////////////////////////////////////////////////////////
+
+
+    var string4 = 'prototype framework';
+    var show11 = 'match() : ' + string4.match(/^p/i);
+    var show12 = 'replace() : ' + string4.replace(/^p/, 'Ajax p');
+    // 문자열 인덱스 3을 반환 (prot)
+    var show13 = 'search() 매치 : ' + string4.search(/t/);
+    var show14 = 'search() 비매치 : ' + string4.search(/Ajax/);
+
+    var split = string4.split(/t/);
+    var show15 = 'split() : ' + split.inspect();
+    var show16 = 'split() [2] : ' + split[2];
+
+    var regexp3 = new RegExp('TO', 'i');
+    var show17 = 'RegExp.text() : ' + regexp3.test(string4);
+    var show18 = 'RegExp.exec() : ' + regexp3.exec(string4);
+
+    console.log(show11);
+    console.log(show12);
+    console.log(show13);
+    console.log(show14);
+    console.log(show15);
+    console.log(show16);
+    console.log(show17);
+    console.log(show18);
+    console.log('');
+
+
+</script>
+
+</body>
+</html>
