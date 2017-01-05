@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>정규식</title>
+</head>
+<body>
+<script src="../../libs/jquery.js"></script>
+<script src="../../libs/prototype.js"></script>
+
+<script>
+
+    ///////////////////////////////////////////////////////////////////
+    // String 클래스
+    ///////////////////////////////////////////////////////////////////
+
+
+    var scriptElmt = '<script><p>스포츠<' + '/' + 'p><' + '/' + 'script>농구,축구' + '<script>스포츠2<' + '/' + 'script>' + '야구,배구';
+
+    console.log(scriptElmt, typeof scriptElmt);
+
+    var result = scriptElmt.stripScripts();
+    console.log('result', result);
+    console.log('stripScripts', stripScripts(scriptElmt));
+
+
+    console.log('extractScripts', extractScripts(scriptElmt));
+
+
+    function stripScripts(string) {
+        //'img' == regexp options ignoreCase, multiline, global
+        var regexp = new RegExp(Prototype.ScriptFragment, 'img');
+        console.log('Prototype.ScriptFragment', Prototype.ScriptFragment);
+        console.log('regexp', regexp);
+        return string.replace(regexp, '');
+    }
+
+
+    function extractScripts(string) {
+        var matchAll = new RegExp(Prototype.ScriptFragment, 'img');
+        var matchOne = new RegExp(Prototype.ScriptFragment, 'im');
+        return (string.match(matchAll) || []).map(function(scriptTag) {
+
+            var result = scriptTag.match(matchOne);
+            console.log('scriptTag', scriptTag, 'result', result, typeof result);
+
+            return (scriptTag.match(matchOne) || ['', ''])[1];
+        });
+    }
+
+
+</script>
+
+</body>
+</html>
