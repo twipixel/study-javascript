@@ -1,0 +1,17 @@
+body{
+    margin: 0; padding: 0; font-size: 16px;
+    font-family: "굴림", "Times New Roman", sans-serif;
+}
+h1{
+    margin-top: 100px; font-size: 18px; margin-left: 100px;
+}
+#firstDivision {
+    margin-top: 20px; margin-left: 100px;
+}
+#showArea {
+    margin-top: 20px;
+}
+#prepareClick {
+    border: solid blue 2px;
+    width: 1500px; height: 1500px;
+}

@@ -1,0 +1,19 @@
+/* 공통 CSS */
+body{
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-family: "굴림", "Times New Roman";
+}
+h1{
+    margin-top: 10px;
+    margin-left: 40px;
+    font-size: 18px;
+}
+#firstDivision, #formTwo {
+    margin-top: 20px;
+    margin-left: 40px;
+}
+#buttonArea, #resultShow, #entryArea {
+    margin-top: 20px;
+}

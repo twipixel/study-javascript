@@ -1,0 +1,32 @@
+/* fine element CSS */
+
+body{
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-family: "굴림", "Times New Roman", sans-serif;
+}
+h1{
+    margin-top: 10px;  margin-left: 30px;
+    font-size: 18px;
+}
+#firstDivision {
+    margin-left: 30px;
+}
+#city {
+    border: solid blue 2px; 
+	width: 200px; height: 200px; margin-top: 30px; 
+}
+#gu {
+    border: solid red 2px; 
+	width: 130px; height: 130px; margin: 30px; 
+	background-color: yellow;
+}
+#dong {
+    border: solid blue 2px; 
+	width: 70px; height: 70px; margin: 20px; 
+	background-color: #D8BFD8;   
+}
+#resultShow {
+    margin-top: 20px;
+}

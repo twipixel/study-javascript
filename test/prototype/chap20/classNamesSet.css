@@ -1,0 +1,14 @@
+.firstCss {
+    border: double;
+    border-color: yellow;
+}
+.twoCss {
+    width: 140px;
+    height: 70px;
+}
+.changeClass {
+    border: solid;
+    border-color: blue;
+    width: 400px;
+    height: 30px;
+}

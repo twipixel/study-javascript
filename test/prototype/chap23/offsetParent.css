@@ -1,0 +1,26 @@
+body{
+    margin: 0; padding: 0; font-size: 16px;
+    font-family: "굴림", "Times New Roman", sans-serif;
+}
+h1{
+    margin-top: 10px; font-size: 18px; margin-left: 70px;
+}
+#firstDivision {
+    margin-top: 20px; margin-left: 40px;
+}
+#boxArea {
+    border: solid blue 2px; overflow: auto;
+    width: 210px; height: 210px; 
+}
+#middleBox {
+    border: solid red 2px;
+    width: 160px; height: 140px; margin: 20px;
+}
+#likeSport {
+    border: solid blue 2px;
+    width: 120px; height: 70px; 
+    left: 50px; top: 60px; margin: 20px;
+}
+#buttonArea, #showArea {
+    margin-top: 20px;
+}

@@ -1,0 +1,26 @@
+body{
+    margin: 0; padding: 0; font-size: 16px;
+    font-family: "굴림", "Times New Roman", sans-serif;
+}
+h1{
+    margin-top: 10px; font-size: 18px; margin-left: 70px;
+}
+#firstDivision {
+    margin-top: 20px; margin-left: 40px;
+}
+#boxArea {
+    border: solid blue 2px; position: relative;
+    width: 210px; height: 200px;
+}
+#middleBox {
+    border: solid red 1px; position: relative; 
+    width: 160px; height: 140px; margin: 20px;
+}
+#riverMountain {
+    border: solid blue 1px; position: relative; 
+    width: 90px; height: 40px; top: 40px; left: 30px;
+    background-color: yellow;
+}
+#buttonArea, #showArea {
+    margin-top: 20px;
+}

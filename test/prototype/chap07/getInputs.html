@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title> Form.Methods 오브젝트</title>
+<link rel="stylesheet" href="../protoComm.css" type="text/css" />
+<script language="javascript" type="text/javascript" src="../prototype.js"></script>
+<script language="javascript" type="text/javascript" src="getInputs.js"></script>
+</head>
+
+<body>
+<h1>getInputs() 메서드</h1>
+<form id="formOne">
+
+<div id="firstDivision">
+    텍스트 : <input type="text" id="idSport"  value="농구" /><br /><br />
+
+    산: 
+        <input type="radio" id="mtn1" name="nameMtn" value="1" checked />
+                <label for="mtn1">한라산</label>
+        <input type="radio" id="mtn2" name="nameMtn" value="2" />
+                <label for="mtn2">지리산</label>
+    <br /><br />
+
+    강:
+        <input type="radio" id="river1" name="nameRiver" value="1" />
+                <label for="river1">한강</label>
+        <input type="radio" id="river2" name="nameRiver" value="2" checked />
+                <label for="river2">낙동강</label>
+
+    <div id="buttonArea">
+        <input type="button" id="okClick" value="입력 완료" />
+    </div>
+    
+    <div id="showArea">
+        <p>엘리먼트 ID 출력</p>
+        <div id="show1"></div><br />
+        <div id="show2"></div><br />
+        <div id="show3"></div><br />
+        <div id="show4"></div>
+    </div>
+</div>
+</form>
+</body>
+
+</html>

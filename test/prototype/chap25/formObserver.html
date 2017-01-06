@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Form.Observer 클래스</title>
+<link rel="stylesheet" href="../protoComm.css" type="text/css" />
+<script language="javascript" type="text/javascript" src="../prototype.js"></script>
+<script language="javascript" type="text/javascript" src="formObserver.js"></script>
+</head>
+
+<body>
+<h1>Form.Observer </h1>
+<form id="formOne">
+<div id="firstDivision">
+
+    <input type="text" id="textMtn" name="nameText" value="12345" />
+    
+    <br /><br />
+    <select id="riverSelect" name="nameRiver"  multiple size="3">
+        <option id="river0" value="한강">한강</option> 
+        <option id="river1" value="낙동강" selected>낙동강</option>
+        <option id="river2" value="금강">금강</option>
+    </select>
+
+    <br /><br />
+    <input type="radio" id="mtn1" name="nameMtn" value="1" checked />
+            <label for="mtn1">한라산</label>
+    <input type="radio" id="mtn2" name="nameMtn" value="2" />
+            <label for="mtn2">지리산</label>
+
+    <br /><br />
+    <input type="checkbox" id="sport1" name="nameSport1" value="A">농구</input>
+    <input type="checkbox" id="sport2" name="nameSport2" value="B" checked>탁구</input>
+    <input type="checkbox" id="sport3" name="nameSport3" value="C">마라톤</input>
+
+    <p>옵저버 결과</p>
+    <div id="showArea">
+        <div id="show1"></div>
+    </div>	
+</div>
+</ form>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+body{
+    margin: 0; padding: 0; font-size: 16px;
+    font-family: "굴림", "Times New Roman", sans-serif;
+}
+h1{ margin-top: 10px; font-size: 18px; margin-left: 70px;}
+
+#firstDivision {
+    margin-top: 20px; margin-left: 40px;
+}
+#buttonArea, #showArea {margin-top: 20px;}
+
+#baseBox {
+	width: 100px; height: 50px;
+    position: absolute; left: 400px; top: 150px;
+	background-color: yellow;
+}
+.boxSize {
+	width: 100px; height: 50px; position: absolute;
+	background-color: #D8BFD8;
+}
+#box1 {left: 500px; top: 200px;}
+#box2 {left: 300px; top: 100px;}
+#box3 {left: 500px; top: 100px;}
+#box4 {left: 300px; top: 200px;}
+
+#inBoxBase {
+	width: 160px; height: 160px; position: absolute;
+	left: 300px; top: 300px;
+	background-color: yellow;
+}
+.inBoxSize {
+	width: 80px; height: 80px; position: absolute;
+	background-color: #D8BFD8;
+}
+#inBox5 {left: 300px; top: 300px;}
+#inBox6 {left: 380px; top: 380px;}
