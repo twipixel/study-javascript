@@ -22,8 +22,6 @@
     var result = scriptElmt.stripScripts();
     console.log('result', result);
     console.log('stripScripts', stripScripts(scriptElmt));
-
-
     console.log('extractScripts', extractScripts(scriptElmt));
 
 
@@ -48,6 +46,167 @@
         });
     }
 
+
+    function escapeHTML(string) {
+        var div = document.createElement('div');
+        var text = document.createTextNode(string);
+        div.appendChild(text);
+        return div.innerHTML;
+    }
+
+
+    var result = escapeHTML(scriptElmt);
+    console.log('');
+    console.log('escapeHTML', result);
+    console.log('-----------------------------');
+    console.log('unescapeHTML 1', result.unescapeHTML());
+    console.log('-----------------------------');
+    console.log('unescapeHTML 2', unescapeHTML(result));
+    console.log('-----------------------------');
+
+    function unescapeHTML(string) {
+        var div = document.createElement('div');
+        div.innerHTML = string.stripTags();
+
+        console.log('');
+        console.log('string', string);
+        console.log('innerHTML', div.innerHTML);
+        console.log('div.childNodes[0]', div.childNodes[0], '::::', div.childNodes[0].nodeValue);
+        console.log(div);
+        console.dir(div);
+
+        if(div.childNodes[0]) {
+            if(div.childNodes.length > 1) {
+                console.log('-----------------------------');
+                return $A(div.childNodes).inject('', function(memo, node) {
+                    return memo+node.nodeValue;
+                })
+            } else {
+                console.log('-----------------------------');
+                return div.childNodes[0].nodeValue;
+            }
+        } else {
+            console.log('-----------------------------');
+            return '';
+        }
+
+    }
+
+
+    var soccerData = 'http://aaa.com?code=soccer&title=축구';
+    var soccerQuery = soccerData.toQueryParams();
+
+    console.log('');
+    console.log('soccerData', soccerData);
+    console.log('soccerQuery', soccerQuery);
+
+    console.log('toQueryParams', toQueryParams(soccerData));
+
+
+    var septData = 'code=abcde#title=스포츠###like=축구,농구';
+    console.log(septData.toQueryParams('#'));
+
+    var dolData = 'code=abcde$title=스포츠';
+    console.log(dolData.toQueryParams('$'));
+
+
+    function toQueryParams(string, separator) {
+        console.log('');
+        console.log('toQueryParams');
+        console.log('strip()', string.strip());
+
+        var match = string.strip().match(/([^?#]*)(#.*)?$/);
+        if(!match) return {};
+
+        console.log('match', match);
+        return match[1].split(separator || '&').inject({}, function(hash, pair) {
+            console.log('hash:', hash, 'pair:', pair);
+            if((pair = pair.split('='))[0]) {
+                var name = decodeURIComponent(pair[0]);
+                var value = pair[1] ? decodeURIComponent(pair[1]) : undefined;
+
+                if(hash[name] !== undefined) {
+                    if(hash[name].constructor != Array)
+                            hash[name] = [hash[name]];
+                    if(value) hash[name].push(value);
+                }
+                else hash[name] = value;
+            }
+            return hash;
+        });
+    }
+
+
+
+    var testString = 'http://site.com?#aaa##aa';
+
+    var regexp = /([^?#]*)/img;
+
+    console.log(testString.match(regexp));
+
+
+
+
+    function prepareReplacement(replacement) {
+        console.log('prepareReplacement', replacement);
+        if (Object.isFunction(replacement)) return replacement;
+        var template = new Template(replacement);
+        return function(match) { return template.evaluate(match) };
+    }
+
+    function isNonEmptyRegExp(regexp) {
+        return regexp.source && regexp.source !== '(?:)';
+    }
+
+
+    function gsub(string, pattern, replacement) {
+        var result = '', source = string, match;
+        replacement = prepareReplacement(replacement);
+
+        if (Object.isString(pattern))
+            pattern = RegExp.escape(pattern);
+
+        if (!(pattern.length || isNonEmptyRegExp(pattern))) {
+            replacement = replacement('');
+            return replacement + source.split('').join(replacement) + replacement;
+        }
+
+        while (source.length > 0) {
+            match = source.match(pattern);
+
+            if (match && match[0].length > 0) {
+                console.log('match', match.index);
+                result += source.slice(0, match.index);
+                console.log('result1', result);
+                result += String.interpret(replacement(match));
+                console.log('result2', result);
+                source  = source.slice(match.index + match[0].length);
+            } else {
+                result += source, source = '';
+            }
+        }
+        return result;
+    }
+
+    function sub(string, pattern, replacement, count) {
+        replacement = prepareReplacement(replacement);
+        count = Object.isUndefined(count) ? 1 : count;
+
+        return this.gsub(string, pattern, function(match) {
+            if (--count < 0) return match[0];
+            return replacement(match);
+        });
+    }
+
+
+    var goods = 'price1: 100, price2: 200, price3: 100';
+    var itmes = '[noteBook], [Computer], [Mobile]';
+
+    console.log('gsub(' + goods + ')', '>>', gsub(goods, 'price', 'Amount'));
+    console.log('gsub(' + goods + ')', '>>', gsub(itmes, /\[|\]/, '\*'));
+
+    console.log('gsub(' + goods + ')', '>>', sub(goods, 'price', 'Amount'));
+    console.log('gsub(' + goods + ')', '>>', sub(itmes, /\[|\]/, '\*', 3));
 
 </script>
 
