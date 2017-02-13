@@ -5,7 +5,6 @@
 (function() {
     console.log('-');
 
-
     var sum = $R(1,10).inject(0, function(acc, n) { return acc + n; });
     // -> 55 (sum of 1 to 10)
 
@@ -25,5 +24,11 @@
 
 
 (function() {
-    console.log('n');
+    var mouseEvents = 'click dblclick mousedown mouseup mouseover mousemove mouseout';
+    var r1 = mouseEvents.gsub(' ', ', ');
+    console.log(r1);
+// -> 'click, dblclick, mousedown, mouseup, mouseover, mousemove, mouseout'
+    var r2 = mouseEvents.gsub(/\s+/, ', ');
+// -> 'click, dblclick, mousedown, mouseup, mouseover, mousemove, mouseout'
+    console.log(r2);
 }());
