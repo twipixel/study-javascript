@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebFontLoader</title>
+    <script>
+        (function () {
+            if (sessionStorage.fonts) {
+                console.log("Fonts installed.");
+                document.documentElement.classList.add('wf-active');
+            } else {
+                console.log("No fonts installed.");
+            }
+        })();
+    </script>
+</head>
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+<script type="text/javascript">
+    // 참고 링크
+    // 웹폰트 캐쉬하고 사용하는 방법 Web Font Loader example: https://github.com/robinrendle/font-loading/tree/master/examples/web-font-loader
+    // font-face cache: http://www.stevesouders.com/tests/font-face/cache.php
+    // 웹폰트 로더 GitHub: https://github.com/typekit/webfontloader
+    // 나눔고딕 구글 웹폰트 사용하기: http://www.letmecompile.com/%EB%82%98%EB%88%94%EA%B3%A0%EB%94%95-%EA%B5%AC%EA%B8%80-%EC%9B%B9%ED%8F%B0%ED%8A%B8webfont-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0/
+    // Using web fonts the best way (in 2015): https://helloanselm.com/2015/using-webfonts-in-2015/
+    // sessionStorage란: https://milooy.wordpress.com/2015/08/08/html5-web-storage-localstorage-sessionstorage/
+    // Flash of Unstyled Text 현상을 해소하는 비동기식 방법: https://css-tricks.com/loading-web-fonts-with-the-web-font-loader/
+    // 올바르게 웹폰트 로딩하기: http://hackya.com/kr/%EC%98%AC%EB%B0%94%EB%A5%B4%EA%B2%8C-%EC%9B%B9%ED%8F%B0%ED%8A%B8-%EB%A1%9C%EB%94%A9%ED%95%98%EA%B8%B0/
+
+    // 웹폰트 로더 동기방식
+    WebFont.load({
+        active: function () {
+            sessionStorage.fonts = true;
+        },
+        google: {
+            families: ['Droid Sans', 'Droid Serif']
+        },
+        custom: {
+            families: [
+                'Nanum Brush Script',
+                'Nanum Gothic',
+                'KoPub Batang'
+            ],
+            urls: [
+                'http://fonts.googleapis.com/earlyaccess/nanumbrushscript.css',
+                'http://fonts.googleapis.com/earlyaccess/nanumgothic.css',
+                'http://fonts.googleapis.com/earlyaccess/kopubbatang.css'
+            ]
+        }
+    });
+
+    // 웹폰트 로더 비동기식
+    WebFontConfig = {
+        active: function () {
+            sessionStorage.fonts = true;
+            console.log('active', 'sessionStorage', sessionStorage);
+        },
+        google: {
+            families: ['Droid Sans']
+        },
+        custom: {
+            families: [
+                'Nanum Brush Script',
+                'Hanna',
+                'Jeju Gothic',
+                'Jeju Hallasan',
+                'Jeju Myeongjo'
+            ],
+            urls: [
+                'http://fonts.googleapis.com/earlyaccess/nanumbrushscript.css',
+                'http://fonts.googleapis.com/earlyaccess/hanna.css',
+                'http://fonts.googleapis.com/earlyaccess/jejugothic.css',
+                'http://fonts.googleapis.com/earlyaccess/jejuhallasan.css',
+                'http://fonts.googleapis.com/earlyaccess/jejumyeongjo.css'
+            ]
+        }
+    };
+
+
+    function loadComplete() {
+        var endTime = Date.now();
+        var duration = endTime - this.startTime;
+        console.log('loadComplete', endTime, '[' + duration + 'ms]');
+        var p = document.getElementById('duration');
+        p.innerHTML = '비동기식 폰트 로딩 시간: ' + duration + 'ms';
+    }
+
+    function loadWebFont() {
+        this.startTime = Date.now();
+        console.log('loadWebFont', this.startTime);
+        var wf = document.createElement('script');
+        wf.onload = loadComplete();
+        wf.onreadystatechange = function () {
+            if (this.readyState == 'complete') loadComplete();
+        };
+        wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+                '://ajax.googleapis.com/ajax/libs/webfont/1.4.10/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+    }
+
+    setTimeout(loadWebFont, 1500);
+</script>
+<script>
+    function loadWebFontOther() {
+        GOOGLE_WEBFONTS = [
+            ['Abel', 'sans-serif'],
+            ['Arvo', 'serif'],
+            ['Bungee Shade', 'cursive'],
+            ['Cookie', 'cursive'],
+            ['Crimson Text', 'serif'],
+            ['Dancing Script', 'cursive'],
+            ['Dosis', 'sans-serif'],
+            ['Duru Sans', 'sans-serif'],
+            ['Inconsolata', 'monospace'],
+            ['Kreon', 'serif'],
+            ['Lancelot', 'cursive'],
+            ['Lobster', 'cursive'],
+            ['Mandali', 'sans-serif'],
+            ['Noto Sans', 'sans-serif'],
+            ['Noto Serif', 'serif'],
+            ['Podkova', 'serif'],
+            ['Quicksand', 'sans-serif'],
+            ['Rasa', 'serif'],
+            ['Sanchez', 'serif ']
+        ];
+
+        WebFontConfig = {
+            active: function () {
+                sessionStorage.fonts = true;
+            },
+            google: {
+                families: []
+            }
+        };
+
+        console.log('loadWebFontOther');
+
+        GOOGLE_WEBFONTS.forEach(function (data) {
+            console.log(data, data[0]);
+            WebFontConfig.google.families.push(data[0]);
+        });
+
+        WebFont.load(WebFontConfig);
+    }
+
+    setTimeout(loadWebFontOther, 3000);
+</script>
+
+
+<div class="container">
+    <p>폰트 적용 전</p>
+    <p>Droid Sans</p>
+    <p>Droid Serif</p>
+    <hr style="color:red" size="10" noshade/>
+    <p style="font-family: Nanum Brush Script;">동기식 폰트 적용 후 (나눔 브러시)</p>
+    <p style="font-family: Nanum Gothic;">동기식 폰트 적용 (나눔 고딕)</p>
+    <p style="font-family: KoPub Batang;">동기식 폰트 적용 (한국출판인회의 바탕체)</p>
+    <p style="font-family: Dorid Sans">Droid Sans</p>
+    <p style="font-family: Dorid Serif">Droid Serif</p>
+    <hr style="color:red" size="10" noshade/>
+    <p style="font-family: Dorid Sans">Droid Sans</p>
+    <p style="font-family: Nanum Brush Script">비동기 폰트 적용 (나눔 브러시)</p>
+    <p style="font-family: Hanna;">비동기식 폰트 적용 (하나체)</p>
+    <p style="font-family: Jeju Gothic;">비동기식 폰트 적용 (제주 고딕체)</p>
+    <p style="font-family: Jeju Myeongjo;">비동기식 폰트 적용 후 (제주 명조체)</p>
+    <p style="font-family: Jeju Hallasan">비동기식 폰트 적용 (제주 한라산체)</p>
+    <hr style="color:red" size="10" noshade/>
+    <p id="duration"></p>
+    <hr style="color:red" size="10" noshade/>
+    <p style="font-family: Lobster;">Lobster</p>
+    <p style="font-family: Mandali;">Mandali</p>
+    <p style="font-family: Rasa;">Rasa</p>
+    <p style="font-family: Sanchez">Sanchez</p>
+</div>
+</body>
+</html>
