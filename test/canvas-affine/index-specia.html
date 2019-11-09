@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Affine Transform</title>
+</head>
+<body>
+
+
+<div id="canvas">
+    <cavnas id="canvas" width="800" height="600"></cavnas>
+</div>
+
+<script src="js/affine.js"></script>
+<script src="js/underscore.js"></script>
+<script src="js/affinetransform.js"></script>
+
+
+<script>
+    window.onload = startApplication;
+
+
+    /**
+     * 데모 기획
+     * 이동
+     * 회전
+     * 스케일
+     * 역행렬
+     * 마우스 탐지
+     *
+     * canvas 800x600
+     * book 600x400
+     *  - book      이동
+     *  - book      화면 끝 드래깅 내부 객체 확대/축소
+     *
+     *  - shape     이동
+     *  - rectangle 제자리 회전
+     *  - triangle  기준점 회전
+     *  - circle    대각선으로 계속 이동 (화면 넘치면 반대로 나오도록)
+     *  - star      스케일링
+     *
+     */
+    function startApplication(){
+        console.log('startApplication');
+
+
+        var ph = [];
+        var angle = 30;
+        var theta = 30 * (Math.PI / 180);
+        var bound = [100, 100, 20, 20];
+
+        var affine = new Affine();
+        affine.translate(100, 100);
+        console.log(affine.toString());
+        affine.scale(2.0, 2.0);
+        console.log(affine.toString());
+        affine.transform(bound, 0, ph, 0, 2);
+        console.log(ph);
+        // result: [300, 300, 140, 140];
+        affine.rotate(theta);
+        console.log(affine.toString());
+
+        var affineTransform = new AffineTransform();
+        affineTransform.translate(100, 100);
+        console.log(affineTransform.toString());
+        affineTransform.scale(2.0, 2.0);
+        console.log(affineTransform.toString());
+        affineTransform.transform(bound, 0, ph, 0, 2);
+        console.log(ph);
+        affineTransform.rotate(theta);
+        console.log(affineTransform.toString());
+
+    }
+</script>
+
+</body>
+</html>

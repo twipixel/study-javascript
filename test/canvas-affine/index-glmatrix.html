@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+
+<style>
+    #canvas {
+        border: 1px solid #00bb00;
+    }
+</style>
+
+
+<body>
+
+<canvas id="canvas" width="800" height="600"></canvas>
+
+<script type="text/javascript" src="../../lib/dat.gui.js"></script>
+<script type="text/javascript" src="../../lib/gl-matrix.js"></script>
+<script type="text/javascript">
+
+
+    ///////////////////////////////////////////////////////////////////
+    // requestAnimFrame
+    ///////////////////////////////////////////////////////////////////
+
+
+    requestAnimFrame = (function () {
+        return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function (callback) {
+                    return window.setTimeout(callback, 1000 / 60);
+                };
+    })();
+
+    cancelAnimFrame = (function () {
+        return window.cancelAnimationFrame ||
+                window.webkitCancelAnimationFrame ||
+                window.mozCancelAnimationFrame ||
+                window.oCancelAnimationFrame ||
+                window.msCancelAnimationFrame ||
+                function (callback) {
+                    return window.clearTimeout(callback, 1000 / 60);
+                };
+    })();
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Class
+    ///////////////////////////////////////////////////////////////////
+
+
+    /**
+     * Point
+     */
+    function Point(x, y) {
+        this.x = x || 0;
+        this.y = y || 0;
+    }
+
+
+    /**
+     * Rectangle
+     */
+    function Rectangle(ctx, x, y, width, height) {
+        this.ctx = ctx;
+        this.matrix = mat3.create();
+        mat3.indentity(this.matrix);
+
+        this._x = 0;
+        this._y = 0;
+        this._width = 0;
+        this._height = 0;
+        this._scaleX = 1;
+        this._scaleY = 1;
+        this._rotate = 0;
+        this._points = [[0, 0], [0, 0], [0, 0], [0, 0]];
+        this._drawPoints = [[0, 0], [0, 0], [0, 0], [0, 0]];
+
+        /*this._points = [
+            [this.x, this.y],
+            [this.x + this.width, this.y],
+            [this.x + this.width, this.y + this.height],
+            [this.x, this.y + this.height]
+        ];*/
+
+        this.strokeStyle = '#333333';
+
+        if (x)
+            this.x = x;
+
+        if (y)
+            this.y = y;
+
+        if (width)
+            this.width = width;
+
+        if (height)
+            this.height = height;
+    }
+
+    var p = Rectangle.prototype;
+
+    Object.defineProperty(p, "x", {
+        get: function () {
+            return this._x;
+        },
+        set: function (value) {
+
+            var diff = value - this._x;
+
+            var mat3 = mat3.create()
+            mat3.translate(this.matrix,)
+            this.matrix.translate(diff, 0);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this._x = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "y", {
+        get: function () {
+            return this._y;
+        },
+        set: function (value) {
+
+            var diff = value - this._y;
+            this.matrix.translate(0, diff);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this._y = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "width", {
+        get: function () {
+            return this._width;
+        },
+        set: function (value) {
+
+            var diff = value - this._width;
+            this._points[1][0] = this._points[1][0] + diff;
+            this._points[2][0] = this._points[2][0] + diff;
+
+            this.matrix.translate(0, 0);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this._width = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "height", {
+        get: function () {
+            return this._height;
+        },
+        set: function (value) {
+
+            var diff = value - this._height;
+            this._points[2][1] = this._points[2][1] + diff;
+            this._points[3][1] = this._points[3][1] + diff;
+
+            this.matrix.translate(0, 0);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this._height = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "scaleX", {
+        get: function () {
+            return this._scaleX;
+        },
+        set: function (value) {
+
+            value = parseInt(value * 100) / 100;
+
+            console.log('SET scaleX:' + value);
+            var diff = 1 + (value - this._scaleX);
+            this.matrix.scale(diff, 1.0);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this.matrix.toString();
+
+            this._scaleX = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "scaleY", {
+        get: function () {
+            return this._scaleY;
+        },
+        set: function (value) {
+
+            value = parseInt(value * 100) / 100;
+
+            var diff = 1 + (value - this._scaleY);
+            this.matrix.scale(1.0, diff);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+
+            console.log('****', diff, value);
+            this._scaleY = value;
+            this.updateDisplay();
+        }
+    });
+
+    Object.defineProperty(p, "rotate", {
+        get: function () {
+            return this._rotate;
+        },
+        set: function (value) {
+
+            var diff = value - this._rotate;
+            this.matrix.rotate(diff);
+
+            for (var i = 0; i < this._points.length; i++)
+                this._drawPoints[i] = this.matrix.transform(this._points[i]);
+
+            this._rotate = value;
+            this.updateDisplay();
+        }
+    });
+
+    p.updateDisplay = function () {
+        var ctx = this.ctx;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = this.strokeStyle;
+
+        var str = 'updateDisplay, ';
+
+        for (var i = 0; i < this._drawPoints.length; i++) {
+            var point = this._drawPoints[i];
+            if (i == 0)
+                ctx.moveTo(point[0], point[1]);
+            else
+                ctx.lineTo(point[0], point[1]);
+
+            str += 'p' + i + '(' + point[0] + ',' + point[1] + '), ';
+        }
+
+        //console.log(str);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+    };
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Initialize
+    ///////////////////////////////////////////////////////////////////
+
+
+    var shapes = [];
+
+    var canvas = window.document.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+
+    var rect = new Rectangle(ctx, 10, 10, 30, 30);
+    rect.x = 30;
+
+    shapes.push(rect);
+
+    guiTarget = rect;
+
+    ///////////////////////////////////////////////////////////////////
+    // GUI
+    ///////////////////////////////////////////////////////////////////
+
+
+    var gui = new dat.GUI();
+
+    gui.add(guiTarget, 'x').min(0).max(canvas.width).step(1).onChange(function (value) {
+        clear();
+        guiTarget.x = value;
+    });
+    gui.add(guiTarget, 'y').min(0).max(canvas.height).step(1).onChange(function(value) {
+        clear();
+        guiTarget.y = value;
+    });
+    gui.add(guiTarget, 'width').min(0).max(canvas.width).step(1).onChange(function (value) {
+        clear();
+        guiTarget.width = value;
+    });
+    gui.add(guiTarget, 'height').min(0).max(canvas.height).step(1).onChange(function(value) {
+        clear();
+        guiTarget.height = value;
+    });
+    gui.add(guiTarget, 'scaleX').min(-2).max(5).step(0.1).onChange(function(value) {
+        clear();
+        console.log('GUI Change scaleX:' + value);
+        guiTarget.scaleX = value;
+    });
+    gui.add(guiTarget, 'scaleY').min(-2).max(5).step(0.1).onChange(function(value) {
+        clear();
+        guiTarget.scaleY = value;
+    });
+    gui.add(guiTarget, 'rotate').min(0).max(360).step(1).onChange(function (value) {
+        clear();
+        guiTarget.rotate = value;
+    });
+
+    window.onload = initialize();
+
+
+    ///////////////////////////////////////////////////////////////////
+    // Code Start
+    ///////////////////////////////////////////////////////////////////
+
+
+    function initialize() {
+        console.log('initialize');
+        clear();
+        draw();
+    }
+
+    function clear() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function draw(ms) {
+        for(var i=0; i<shapes.length; i++) {
+            var shape = shapes[i];
+            shape.updateDisplay();
+        }
+    }
+
+
+</script>
+
+
+</body>
+</html>

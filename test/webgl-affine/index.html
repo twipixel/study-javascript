@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+    <title>Basic</title>
+    <style>
+        body {
+            background-color: grey;
+        }
+
+        canvas {
+            background-color: white;
+        }
+    </style>
+    <script src="../../lib/raf_polyfill.js"></script>
+    <script src="../../lib/gl-matrix-min.js"></script>
+    <script src="../../lib/InputUtil.js"></script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+
+        attribute vec3 aVertexPosition;
+
+        void main(void){
+            gl_Position = vec4(aVertexPosition, 1.0);
+        }
+
+    </script>
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+
+        void main(void) {
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+
+    </script>
+
+
+    <script>
+        var gl = null,
+                canvas = null,
+                glProgram = null,
+                fragmentShader = null,
+                vertexShader = null;
+
+        var vertexData;
+
+        function initWebGL() {
+            canvas = document.getElementById("my-canvas");
+            try {gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");} catch (e) {}
+
+            if (gl) {
+
+                makeProgram();
+
+                (function animLoop() {
+                    setupWebGL();
+                    drawScene();
+                    requestAnimationFrame(animLoop, canvas);
+                })();
+            } else {
+                alert("Error: Your browser does not appear to support WebGL.");
+            }
+        }
+
+        function setupWebGL() {
+            gl.clearColor(0.5, 0.5, 0.5, 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            gl.enable(gl.DEPTH_TEST);
+        }
+
+        function makeBuffer() {
+
+        }
+
+        function makeProgram() {
+            vertexShader = makeShader(document.getElementById("shader-vs").innerHTML, gl.VERTEX_SHADER);
+            fragmentShader = makeShader(document.getElementById("shader-fs").innerHTML, gl.FRAGMENT_SHADER);
+
+            glProgram = gl.createProgram();
+            gl.attachShader(glProgram, vertexShader);
+            gl.attachShader(glProgram, fragmentShader);
+            gl.linkProgram(glProgram);
+
+            if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+                alert("Unable to initialize the shader program.");
+            }
+
+            gl.useProgram(glProgram);
+        }
+
+        function makeShader(src, type) {
+            var shader = gl.createShader(type);
+            gl.shaderSource(shader, src);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
+            }
+
+            return shader;
+        }
+
+        function drawScene() {
+
+        }
+
+
+
+        InputUtil.bindKey(InputUtil.W, onKey, this);
+        InputUtil.bindKey(InputUtil.S, onKey, this);
+        InputUtil.bindKey(InputUtil.A, onKey, this);
+        InputUtil.bindKey(InputUtil.D, onKey, this);
+        InputUtil.bindKey(InputUtil.R, onKey, this);
+        InputUtil.bindKey(InputUtil.F, onKey, this);
+        InputUtil.bindKey(InputUtil.UP_ARROW, onKey, this);
+        InputUtil.bindKey(InputUtil.DOWN_ARROW, onKey, this);
+        InputUtil.bindKey(InputUtil.LEFT_ARROW, onKey, this);
+        InputUtil.bindKey(InputUtil.RIGHT_ARROW, onKey, this);
+        InputUtil.bindWheel(0.1, onMouseWheel, this);
+
+
+        function onKey() {
+            console.log('onKey');
+        }
+
+        function onMouseWheel(movement) {
+            console.log(movement);
+        }
+
+        function log() {
+            console.log(arguments);
+        }
+
+    </script>
+</head>
+<body onload="initWebGL()">
+<canvas id="my-canvas" width="500" height="500">
+    Your browser does not support the HTML5 canvas element.
+</canvas>
+</body>
+</html>
